@@ -73,3 +73,10 @@ export const confirmPresenca = async (reservationId, pin) => {
     updatedAt: Timestamp.now(),
   });
 };
+
+export const updateReservationCode = async (reservationId, code) => {
+  await updateDoc(doc(db, "reservations", reservationId), {
+    codigo: code,
+    updatedAt: Timestamp.now(),
+  });
+};

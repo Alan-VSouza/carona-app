@@ -62,7 +62,14 @@ function MinhasCaronas() {
           {rides.map(ride => {
             const badge = getStatusBadge(ride.status)
             return (
-              <div key={ride.id} className="card" style={{ marginBottom: 0 }}>
+              <div
+                key={ride.id}
+                className="card"
+                style={{
+                  marginBottom: 0,
+                  transition: 'all 0.3s ease'
+                }}
+              >
                 <div style={{
                   display: "grid",
                   gridTemplateColumns: "1fr auto",
@@ -115,6 +122,20 @@ function MinhasCaronas() {
                     </p>
                   </div>
                 </div>
+
+                {ride.status === 'aberta' && (
+                  <button
+                    onClick={() => navigate(`/motorista/iniciar/${ride.id}`)}
+                    style={{
+                      width: '100%',
+                      marginTop: '1rem',
+                      background: 'var(--success)',
+                      padding: '0.875rem'
+                    }}
+                  >
+                    Iniciar Carona
+                  </button>
+                )}
               </div>
             )
           })}

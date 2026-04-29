@@ -13,6 +13,7 @@ import MotoristaHome from "./pages/MotoristaHome";
 import PassageiroHome from "./pages/PassageiroHome";
 import OfertarCarona from "./pages/OfertarCarona";
 import MinhasCaronas from "./pages/MinhasCaronas";
+import IniciarCarona from "./pages/IniciarCarona";
 import VisualizarCaronas from "./pages/VisualizarCaronas";
 import PassageiroMinhasReservas from "./pages/PassageiroMinhasReservas";
 import ReservaDetalhes from "./pages/ReservaDetalhes";
@@ -47,6 +48,14 @@ function App() {
             element={
               <ProtectedRoute userType="motorista">
                 <MinhasCaronas />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/motorista/iniciar/:rideId"
+            element={
+              <ProtectedRoute userType="motorista">
+                <IniciarCarona />
               </ProtectedRoute>
             }
           />
