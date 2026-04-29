@@ -74,9 +74,9 @@ function VisualizarCaronas() {
       <div className="container" style={{ paddingTop: "2rem" }}>
         <div style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "1rem",
-          marginBottom: "2rem"
+          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+          gap: "0.75rem",
+          marginBottom: "1.5rem"
         }}>
           <input
             type="text"

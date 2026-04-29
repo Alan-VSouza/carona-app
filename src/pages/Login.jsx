@@ -59,10 +59,10 @@ function Login() {
     }}>
       <div style={{
         background: "var(--secondary-bg)",
-        padding: "3rem 2rem",
+        padding: "clamp(1.5rem, 5vw, 3rem) clamp(1rem, 4vw, 2rem)",
         borderRadius: "0.875rem",
         border: "1px solid var(--border)",
-        maxWidth: "400px",
+        maxWidth: "420px",
         width: "100%",
         animation: "fadeInUp 0.5s ease-out"
       }}>

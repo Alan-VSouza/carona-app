@@ -42,9 +42,9 @@ function PassageiroHome() {
 
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-        gap: "1.5rem",
-        marginBottom: "3rem"
+        gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+        gap: "clamp(1rem, 3vw, 1.5rem)",
+        marginBottom: "2rem"
       }}>
         {menuItems.map((item, index) => (
           <div
@@ -53,11 +53,11 @@ function PassageiroHome() {
             className="card"
             style={{
               cursor: "pointer",
-              padding: "2rem 1.5rem",
+              padding: "clamp(1.25rem, 4vw, 2rem) clamp(1rem, 3vw, 1.5rem)",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
-              minHeight: "160px"
+              minHeight: "140px"
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = "var(--accent)";

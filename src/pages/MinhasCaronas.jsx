@@ -87,8 +87,8 @@ function MinhasCaronas() {
 
                 <div style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-                  gap: "1.5rem"
+                  gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+                  gap: "clamp(1rem, 3vw, 1.5rem)"
                 }}>
                   <div>
                     <p style={{ color: "var(--text-secondary)", marginBottom: "0.5rem", fontSize: "0.85rem", fontWeight: "500" }}>

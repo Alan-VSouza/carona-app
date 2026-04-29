@@ -39,7 +39,7 @@ export function RideDetailsModal({ ride, isOpen, onClose }) {
         width: '100%',
         maxWidth: '500px',
         borderRadius: '1.25rem',
-        padding: '2rem',
+        padding: 'clamp(1.25rem, 5vw, 2rem)',
         maxHeight: '90vh',
         overflowY: 'auto',
         animation: 'slideUp 0.3s ease-out',

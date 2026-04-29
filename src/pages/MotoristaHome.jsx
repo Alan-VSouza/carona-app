@@ -41,14 +41,14 @@ function MotoristaHome() {
 
       {motoristData?.carro ? (
         <div className="card" style={{
-          marginBottom: "2.5rem",
+          marginBottom: "2rem",
           borderLeft: "3px solid var(--accent)"
         }}>
-          <h2 style={{ marginBottom: "1.5rem", fontSize: "1.375rem" }}>Seu Veículo</h2>
+          <h2 style={{ marginBottom: "1rem", fontSize: "clamp(1.125rem, 4vw, 1.375rem)" }}>Seu Veículo</h2>
           <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "2rem"
+            gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+            gap: "clamp(1rem, 3vw, 2rem)"
           }}>
             <div>
               <p style={{ color: "var(--text-secondary)", marginBottom: "0.5rem", fontSize: "0.85rem", fontWeight: "500" }}>
@@ -112,48 +112,57 @@ function MotoristaHome() {
 
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-        gap: "1rem",
-        marginBottom: "2.5rem"
+        gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+        gap: "clamp(0.75rem, 2vw, 1rem)",
+        marginBottom: "2rem"
       }}>
         <button onClick={() => navigate("/motorista/oferecer")} style={{
-          padding: "1.5rem 1.25rem",
+          padding: "clamp(1rem, 3vw, 1.5rem) clamp(0.875rem, 2vw, 1.25rem)",
           height: "auto",
           textAlign: "left",
-          background: "var(--accent)"
+          background: "var(--accent)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center"
         }}>
-          <div style={{ fontWeight: "700", fontSize: "1rem", marginBottom: "0.5rem" }}>
+          <div style={{ fontWeight: "700", fontSize: "clamp(0.875rem, 2vw, 1rem)", marginBottom: "0.375rem" }}>
             Oferecer Carona
           </div>
-          <div style={{ fontSize: "0.85rem", opacity: 0.9 }}>
+          <div style={{ fontSize: "clamp(0.75rem, 1.5vw, 0.85rem)", opacity: 0.9, lineHeight: 1.3 }}>
             Compartilhe sua jornada
           </div>
         </button>
 
         <button onClick={() => navigate("/motorista/minhas-caronas")} style={{
-          padding: "1.5rem 1.25rem",
+          padding: "clamp(1rem, 3vw, 1.5rem) clamp(0.875rem, 2vw, 1.25rem)",
           height: "auto",
           textAlign: "left",
-          background: "var(--success)"
+          background: "var(--success)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center"
         }}>
-          <div style={{ fontWeight: "700", fontSize: "1rem", marginBottom: "0.5rem" }}>
+          <div style={{ fontWeight: "700", fontSize: "clamp(0.875rem, 2vw, 1rem)", marginBottom: "0.375rem" }}>
             Minhas Caronas
           </div>
-          <div style={{ fontSize: "0.85rem", opacity: 0.9 }}>
+          <div style={{ fontSize: "clamp(0.75rem, 1.5vw, 0.85rem)", opacity: 0.9, lineHeight: 1.3 }}>
             Gerencie suas ofertas
           </div>
         </button>
 
         <button onClick={handleLogout} style={{
-          padding: "1.5rem 1.25rem",
+          padding: "clamp(1rem, 3vw, 1.5rem) clamp(0.875rem, 2vw, 1.25rem)",
           height: "auto",
           textAlign: "left",
-          background: "var(--error)"
+          background: "var(--error)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center"
         }}>
-          <div style={{ fontWeight: "700", fontSize: "1rem", marginBottom: "0.5rem" }}>
+          <div style={{ fontWeight: "700", fontSize: "clamp(0.875rem, 2vw, 1rem)", marginBottom: "0.375rem" }}>
             Sair
           </div>
-          <div style={{ fontSize: "0.85rem", opacity: 0.9 }}>
+          <div style={{ fontSize: "clamp(0.75rem, 1.5vw, 0.85rem)", opacity: 0.9, lineHeight: 1.3 }}>
             Desconecte-se
           </div>
         </button>
