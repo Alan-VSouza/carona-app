@@ -25,6 +25,7 @@ function MinhasCaronas() {
   const getStatusBadge = (status) => {
     const badges = {
       'aberta': { className: 'badge badge-primary', label: 'Aberta' },
+      'lotada': { className: 'badge badge-warning', label: 'Lotada' },
       'confirmada': { className: 'badge badge-success', label: 'Confirmada' },
       'cancelada': { className: 'badge badge-error', label: 'Cancelada' },
       'finalizada': { className: 'badge badge-success', label: 'Finalizada' }
@@ -110,7 +111,7 @@ function MinhasCaronas() {
                       LUGARES
                     </p>
                     <p style={{ fontSize: "1.125rem", fontWeight: "600" }}>
-                      {ride.lugares_disponiveis - ride.lugares_ocupados}/{ride.lugares_disponiveis}
+                      {ride.lugares_ocupados ?? 0}/{ride.lugares_disponiveis}
                     </p>
                   </div>
                   <div>
