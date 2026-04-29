@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getRideById, updateRideStatus } from '../services/rideService'
-import { getRideReservations, confirmPresenca } from '../services/reservationService'
+import { getRideReservations, confirmPresenca, saveGeneratedPIN, generatePIN } from '../services/reservationService'
 import { Header, HeaderDark } from '../components/Header'
 
 function IniciarCarona() {
@@ -14,6 +14,8 @@ function IniciarCarona() {
   const [pinInput, setPinInput] = useState('')
   const [confirmados, setConfirmados] = useState(new Set())
   const [mensagem, setMensagem] = useState('')
+  const [tempoRestante, setTempoRestante] = useState(null)
+  const [podePartir, setPodePartir] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,27 +38,47 @@ function IniciarCarona() {
     fetchData()
   }, [rideId])
 
-  // Gerar PIN para cada reserva (4 dígitos)
-  const gerarPin = (reservaId) => {
-    return Math.floor(1000 + Math.random() * 9000).toString()
-  }
+  // Timer de tolerância: horário marcado + 5min
+  useEffect(() => {
+    if (!caronaIniciada || !ride) return;
+
+    const horarioMarcado = ride.data_hora?.toDate?.() ?? new Date();
+    const limitePartida = new Date(horarioMarcado.getTime() + 5 * 60 * 1000);
+
+    const tick = () => {
+      const agora = new Date();
+      const diff = limitePartida - agora;
+      if (diff <= 0) {
+        setPodePartir(true);
+        setTempoRestante(null);
+      } else {
+        const mins = Math.floor(diff / 60000);
+        const segs = Math.floor((diff % 60000) / 1000);
+        setTempoRestante(`${mins}:${segs.toString().padStart(2, '0')}`);
+      }
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [caronaIniciada, ride]);
 
   const handleIniciarCarona = async () => {
     try {
-      // Atualizar status da carona para "em_progresso"
       await updateRideStatus(rideId, 'em_progresso')
 
-      // Gerar PINs para cada passageiro
-      const reservasComPin = reservations.map(r => ({
-        ...r,
-        pin_gerado: gerarPin(r.id)
-      }))
+      // Gerar e salvar PINs no Firestore para cada passageiro
+      const reservasComPin = await Promise.all(
+        reservations.map(async (r) => {
+          const pin = generatePIN()
+          await saveGeneratedPIN(r.id, pin)
+          return { ...r, pin_gerado: pin }
+        })
+      )
 
       setReservations(reservasComPin)
       setCaronaIniciada(true)
-      setMensagem('Carona iniciada! Passageiros receberão seus códigos.')
-
-      // Limpar mensagem após 3 segundos
+      setMensagem('Carona iniciada! Passageiros já podem ver seus PINs.')
       setTimeout(() => setMensagem(''), 3000)
     } catch (error) {
       console.error('Erro ao iniciar carona:', error)
@@ -274,6 +296,37 @@ function IniciarCarona() {
           </div>
         )}
 
+        {/* Timer de tolerância */}
+        <div className="card" style={{
+          marginBottom: '1.5rem',
+          borderLeft: podePartir ? '3px solid var(--success)' : '3px solid var(--warning)',
+          background: 'var(--tertiary-bg)',
+          textAlign: 'center'
+        }}>
+          {podePartir ? (
+            <>
+              <p style={{ fontWeight: '600', color: 'var(--success)', marginBottom: '0.25rem' }}>
+                Tolerância encerrada
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                Você pode partir. Passageiros sem PIN confirmado perdem a reserva.
+              </p>
+            </>
+          ) : (
+            <>
+              <p style={{ fontWeight: '600', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
+                Aguardando passageiros
+              </p>
+              <p style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--warning)', fontFamily: "'Inconsolata', monospace" }}>
+                {tempoRestante}
+              </p>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                Tolerância de 5 min — horário marcado: {new Date(ride?.data_hora?.toDate?.()).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              </p>
+            </>
+          )}
+        </div>
+
         {/* Input de Código */}
         <div className="card" style={{ marginBottom: '2rem' }}>
           <h3 style={{ marginBottom: '1rem' }}>Digite o código do passageiro:</h3>
@@ -384,25 +437,41 @@ function IniciarCarona() {
           </div>
         </div>
 
-        {confirmados.size === reservations.length && (
+        {confirmados.size === reservations.length && reservations.length > 0 && (
           <div className="card" style={{
             background: 'rgba(16, 185, 129, 0.1)',
             border: '1px solid var(--success)',
-            textAlign: 'center'
+            textAlign: 'center',
+            marginBottom: '1rem'
           }}>
             <h3 style={{ color: 'var(--success)', marginBottom: '0.5rem' }}>
               Todos confirmados!
             </h3>
             <p style={{ color: 'var(--text-secondary)' }}>
-              A carona foi concluída com sucesso.
+              Finalize a carona quando chegar ao destino.
             </p>
           </div>
         )}
 
         <button
+          onClick={async () => {
+            await updateRideStatus(rideId, 'finalizada')
+            navigate('/motorista/minhas-caronas')
+          }}
+          style={{
+            marginTop: '1rem',
+            width: '100%',
+            background: 'var(--success)',
+            padding: '1rem'
+          }}
+        >
+          Finalizar Carona
+        </button>
+
+        <button
           onClick={() => navigate('/motorista/minhas-caronas')}
           style={{
-            marginTop: '2rem',
+            marginTop: '0.75rem',
             width: '100%',
             background: 'var(--secondary-bg)',
             border: '1px solid var(--border)',
