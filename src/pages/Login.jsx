@@ -20,6 +20,22 @@ function Login() {
     }
   }, [currentUser, userData, navigate]);
 
+  const getFirebaseError = (err) => {
+    const code = err.code || "";
+    const messages = {
+      "auth/invalid-login-credentials": "E-mail ou senha incorretos.",
+      "auth/user-not-found":            "Nenhuma conta encontrada com este e-mail.",
+      "auth/wrong-password":            "Senha incorreta.",
+      "auth/email-already-in-use":      "Este e-mail já está cadastrado.",
+      "auth/invalid-email":             "E-mail inválido.",
+      "auth/weak-password":             "A senha deve ter pelo menos 6 caracteres.",
+      "auth/too-many-requests":         "Muitas tentativas. Tente novamente em alguns minutos.",
+      "auth/network-request-failed":    "Sem conexão. Verifique sua internet.",
+      "auth/user-disabled":             "Esta conta foi desativada.",
+    };
+    return messages[code] || "Ocorreu um erro. Tente novamente.";
+  };
+
   const handleSignUp = async (e) => {
     e.preventDefault();
     setError("");
@@ -28,7 +44,7 @@ function Login() {
       await signUp(email, password, nome, tipo);
       navigate(tipo === "motorista" ? "/motorista" : "/passageiro");
     } catch (err) {
-      setError(err.message);
+      setError(getFirebaseError(err));
     } finally {
       setLoading(false);
     }
@@ -42,7 +58,7 @@ function Login() {
       await signIn(email, password);
       navigate(tipo === "motorista" ? "/motorista" : "/passageiro");
     } catch (err) {
-      setError(err.message);
+      setError(getFirebaseError(err));
     } finally {
       setLoading(false);
     }
