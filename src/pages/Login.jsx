@@ -49,67 +49,122 @@ function Login() {
   };
 
   return (
-    <div className="container" style={{ maxWidth: "400px", marginTop: "50px" }}>
-      <h1>{isSignUp ? "Cadastro" : "Login"}</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "1rem",
+      background: "var(--bg)"
+    }}>
+      <div style={{
+        background: "var(--secondary-bg)",
+        padding: "3rem 2rem",
+        borderRadius: "0.875rem",
+        border: "1px solid var(--border)",
+        maxWidth: "400px",
+        width: "100%",
+        animation: "fadeInUp 0.5s ease-out"
+      }}>
+        <div style={{ marginBottom: "2.5rem", textAlign: "center" }}>
+          <h1 style={{
+            fontSize: "1.75rem",
+            marginBottom: "0.5rem"
+          }}>
+            {isSignUp ? "Criar Conta" : "Acessar"}
+          </h1>
+          <p style={{
+            color: "var(--text-secondary)",
+            fontSize: "0.95rem"
+          }}>
+            {isSignUp ? "Comece a compartilhar caronas" : "Bem-vindo de volta"}
+          </p>
+        </div>
 
-      <form onSubmit={isSignUp ? handleSignUp : handleSignIn}>
-        {isSignUp && (
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={isSignUp ? handleSignUp : handleSignIn}>
+          {isSignUp && (
+            <>
+              <label>Nome completo</label>
+              <input
+                type="text"
+                placeholder="Seu nome"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                required
+              />
+            </>
+          )}
+
+          <label>Email</label>
           <input
-            type="text"
-            placeholder="Nome completo"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
+            type="email"
+            placeholder="seu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
-        )}
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+          <label>Senha</label>
+          <input
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
-        <input
-          type="password"
-          placeholder="Senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          {isSignUp && (
+            <>
+              <label>Tipo de Conta</label>
+              <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+                <option value="passageiro">Passageiro</option>
+                <option value="motorista">Motorista</option>
+              </select>
+            </>
+          )}
 
-        {isSignUp && (
-          <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-            <option value="passageiro">Passageiro</option>
-            <option value="motorista">Motorista</option>
-          </select>
-        )}
+          <button type="submit" disabled={loading} style={{ marginTop: "1.5rem", width: "100%" }}>
+            {loading ? "Processando..." : isSignUp ? "Criar Conta" : "Acessar"}
+          </button>
+        </form>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Processando..." : isSignUp ? "Cadastrar" : "Entrar"}
-        </button>
-      </form>
-
-      <p style={{ marginTop: "20px", textAlign: "center" }}>
-        {isSignUp ? "Já tem conta?" : "Não tem conta?"}
-        <button
-          type="button"
-          onClick={() => {
-            setIsSignUp(!isSignUp);
-            setError("");
-          }}
-          style={{
-            background: "none",
-            color: "#007bff",
-            cursor: "pointer",
-            padding: 0,
-          }}
-        >
-          {isSignUp ? " Entrar" : " Cadastrar"}
-        </button>
-      </p>
+        <div style={{
+          marginTop: "2rem",
+          textAlign: "center",
+          borderTop: "1px solid var(--border)",
+          paddingTop: "2rem"
+        }}>
+          <p style={{
+            color: "var(--text-secondary)",
+            marginBottom: "1rem",
+            fontSize: "0.95rem"
+          }}>
+            {isSignUp ? "Já tem conta?" : "Não tem conta?"}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setIsSignUp(!isSignUp);
+              setError("");
+            }}
+            style={{
+              width: "100%",
+              background: "var(--secondary-bg)",
+              color: "var(--accent)",
+              border: "1px solid var(--accent)",
+              boxShadow: "none"
+            }}
+          >
+            {isSignUp ? "Acessar conta existente" : "Criar nova conta"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

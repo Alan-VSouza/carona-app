@@ -5,6 +5,8 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
+import { ThemeToggle } from "./components/ThemeToggle";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import MotoristaHome from "./pages/MotoristaHome";
@@ -18,9 +20,11 @@ import ConfirmarPresenca from "./pages/ConfirmarPresenca";
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <Routes>
+    <ThemeProvider>
+      <Router>
+        <AuthProvider>
+          <ThemeToggle />
+          <Routes>
           <Route path="/login" element={<Login />} />
           <Route
             path="/motorista"
@@ -87,9 +91,10 @@ function App() {
             }
           />
           <Route path="/" element={<Navigate to="/login" />} />
-        </Routes>
-      </AuthProvider>
-    </Router>
+          </Routes>
+        </AuthProvider>
+      </Router>
+    </ThemeProvider>
   );
 }
 

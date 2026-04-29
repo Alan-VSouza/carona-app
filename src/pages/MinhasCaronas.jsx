@@ -22,24 +22,116 @@ function MinhasCaronas() {
 
   if (loading) return <div className="container"><p>Carregando...</p></div>
 
+  const getStatusBadge = (status) => {
+    const badges = {
+      'aberta': { className: 'badge badge-primary', label: 'Aberta' },
+      'confirmada': { className: 'badge badge-success', label: 'Confirmada' },
+      'cancelada': { className: 'badge badge-error', label: 'Cancelada' },
+      'finalizada': { className: 'badge badge-success', label: 'Finalizada' }
+    }
+    return badges[status] || { className: 'badge badge-primary', label: status }
+  }
+
   return (
     <div className="container">
-      <h1>Minhas Caronas</h1>
+      <div style={{ marginBottom: "2.5rem" }}>
+        <h1 style={{ marginBottom: "0.5rem" }}>Minhas Caronas</h1>
+        <p style={{ color: "var(--text-secondary)" }}>Gerencie todas as suas ofertas</p>
+      </div>
 
       {rides.length === 0 ? (
-        <p>Nenhuma carona cadastrada</p>
+        <div className="card" style={{
+          textAlign: "center",
+          padding: "3rem 2rem",
+          background: "var(--tertiary-bg)",
+          border: "1px dashed var(--border)"
+        }}>
+          <h3 style={{ marginBottom: "0.75rem" }}>Nenhuma carona cadastrada</h3>
+          <p style={{ color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
+            Comece a oferecer caronas para ganhar
+          </p>
+          <button onClick={() => navigate("/motorista/oferecer")}>
+            Oferecer Carona
+          </button>
+        </div>
       ) : (
-        rides.map(ride => (
-          <div key={ride.id} className="card">
-            <h3>{ride.origem} → {ride.destino}</h3>
-            <p><strong>Status:</strong> {ride.status}</p>
-            <p><strong>Valor:</strong> R$ {ride.valor_total.toFixed(2)}</p>
-            <p><strong>Lugares:</strong> {ride.lugares_disponiveis - ride.lugares_ocupados} disponíveis</p>
-          </div>
-        ))
+        <div style={{
+          display: "grid",
+          gap: "1rem"
+        }}>
+          {rides.map(ride => {
+            const badge = getStatusBadge(ride.status)
+            return (
+              <div key={ride.id} className="card" style={{ marginBottom: 0 }}>
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr auto",
+                  alignItems: "start",
+                  marginBottom: "1rem",
+                  paddingBottom: "1rem",
+                  borderBottom: "1px solid var(--border)"
+                }}>
+                  <div>
+                    <h3 style={{ marginBottom: "0.25rem", fontSize: "1.125rem" }}>
+                      {ride.origem?.split(',')[0]} → {ride.destino?.split(',')[0]}
+                    </h3>
+                    <p style={{ fontSize: "0.9rem" }}>
+                      {new Date(ride.data_hora?.toDate?.()).toLocaleDateString('pt-BR')} às{' '}
+                      {new Date(ride.data_hora?.toDate?.()).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                  <span className={badge.className}>
+                    {badge.label}
+                  </span>
+                </div>
+
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                  gap: "1.5rem"
+                }}>
+                  <div>
+                    <p style={{ color: "var(--text-secondary)", marginBottom: "0.5rem", fontSize: "0.85rem", fontWeight: "500" }}>
+                      VALOR TOTAL
+                    </p>
+                    <p style={{ fontSize: "1.25rem", fontWeight: "700", color: "var(--success)" }}>
+                      R$ {ride.valor_total?.toFixed(2)}
+                    </p>
+                  </div>
+                  <div>
+                    <p style={{ color: "var(--text-secondary)", marginBottom: "0.5rem", fontSize: "0.85rem", fontWeight: "500" }}>
+                      LUGARES
+                    </p>
+                    <p style={{ fontSize: "1.125rem", fontWeight: "600" }}>
+                      {ride.lugares_disponiveis - ride.lugares_ocupados}/{ride.lugares_disponiveis}
+                    </p>
+                  </div>
+                  <div>
+                    <p style={{ color: "var(--text-secondary)", marginBottom: "0.5rem", fontSize: "0.85rem", fontWeight: "500" }}>
+                      DISTÂNCIA
+                    </p>
+                    <p style={{ fontSize: "1.125rem", fontWeight: "600" }}>
+                      {ride.km_estimado} km
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
       )}
 
-      <button onClick={() => navigate('/motorista')} style={{ background: '#6c757d', marginTop: '10px' }}>
+      <button
+        onClick={() => navigate('/motorista')}
+        style={{
+          marginTop: "2.5rem",
+          width: "100%",
+          background: "var(--secondary-bg)",
+          color: "var(--text-primary)",
+          border: "1px solid var(--border)",
+          boxShadow: "none"
+        }}
+      >
         Voltar
       </button>
     </div>
