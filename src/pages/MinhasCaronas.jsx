@@ -124,7 +124,7 @@ function MinhasCaronas() {
                   </div>
                 </div>
 
-                {ride.status === 'aberta' && (
+                {(ride.status === 'aberta' || ride.status === 'lotada') && (
                   <button
                     onClick={() => navigate(`/motorista/iniciar/${ride.id}`)}
                     style={{

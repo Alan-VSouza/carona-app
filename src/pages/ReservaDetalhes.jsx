@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { getRideById } from "../services/rideService";
-import { createReservation, generatePIN } from "../services/reservationService";
+import { createReservation } from "../services/reservationService";
 import { calculateTariff } from "../services/tariffService";
+import { Header, HeaderDark } from "../components/Header";
 
 function ReservaDetalhes() {
   const { rideId } = useParams();
@@ -12,15 +13,15 @@ function ReservaDetalhes() {
   const [ride, setRide] = useState(null);
   const [tariff, setTariff] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [paymentStep, setPaymentStep] = useState(1);
+  const [confirmado, setConfirmado] = useState(false);
 
   useEffect(() => {
     const fetchRide = async () => {
       try {
         const rideData = await getRideById(rideId);
         setRide(rideData);
-
         const tariffData = calculateTariff(
           rideData.km_estimado,
           15,
@@ -28,147 +29,144 @@ function ReservaDetalhes() {
           rideData.preco_combustivel,
         );
         setTariff(tariffData);
-        setLoading(false);
       } catch (err) {
         setError(err.message);
+      } finally {
         setLoading(false);
       }
     };
     fetchRide();
   }, [rideId]);
 
-  const handlePaymentStep1 = async (e) => {
+  const handleReservar = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
-
+    setSubmitting(true);
     try {
-      const reservationId = await createReservation(
-        currentUser.uid,
-        rideId,
-        tariff,
-      );
-      alert(
-        `Reserva confirmada! ID: ${reservationId}. Valor pago: R$ ${tariff.initialPayment.toFixed(2)}`,
-      );
-      setPaymentStep(2);
-      setLoading(false);
+      await createReservation(currentUser.uid, rideId, tariff);
+      setConfirmado(true);
     } catch (err) {
       setError(err.message);
-      setLoading(false);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handlePaymentStep2 = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  if (loading) return <div className="container"><p>Carregando...</p></div>;
+  if (!ride) return <div className="container"><p>Carona não encontrada</p></div>;
 
-    try {
-      const pin = generatePIN();
-      alert(`Pagamento de R$ ${tariff.remainingPayment.toFixed(2)} confirmado!\n\nSeu PIN: ${pin}\n\nCompartilhe com o
-   motorista.`);
-      navigate("/passageiro");
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-    }
-  };
-
-  if (loading)
-    return (
-      <div className="container">
-        <p>Carregando...</p>
-      </div>
-    );
-  if (!ride)
-    return (
-      <div className="container">
-        <p>Carona não encontrada</p>
-      </div>
-    );
-
-  const dataHora = new Date(ride.data_hora.seconds * 1000).toLocaleString(
-    "pt-BR",
-  );
+  const dataHora = new Date(ride.data_hora.seconds * 1000);
 
   return (
-    <div className="container" style={{ maxWidth: "600px" }}>
-      <h1>Detalhes da Reserva</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <>
+      <Header title="Detalhes da Reserva" onBack={() => navigate("/passageiro/caronas")} />
+      <HeaderDark />
 
-      <div className="card">
-        <h2>
-          {ride.origem} → {ride.destino}
-        </h2>
-        <p>
-          <strong>Data/Hora:</strong> {dataHora}
-        </p>
-        <p>
-          <strong>Carro:</strong> {ride.carro.modelo} ({ride.carro.placa})
-        </p>
-        <p>
-          <strong>Distância:</strong> {ride.km_estimado} km
-        </p>
-        <p>
-          <strong>Combustível:</strong>{" "}
-          {ride.combustivel.charAt(0).toUpperCase() + ride.combustivel.slice(1)}
-        </p>
-      </div>
+      <div className="container" style={{ maxWidth: "520px", paddingTop: "2rem" }}>
+        {error && <div className="error-message">{error}</div>}
 
-      <div className="card" style={{ background: "#f0f8ff" }}>
-        <h3>Valores</h3>
-        {tariff && (
-          <>
-            <p>
-              <strong>Valor Total:</strong> R$ {tariff.totalValue.toFixed(2)}
-            </p>
-            <p>
-              <strong>Você paga agora (1/3):</strong> R${" "}
-              {tariff.initialPayment.toFixed(2)}
-            </p>
-            <p>
-              <strong>Você paga depois (2/3):</strong> R${" "}
-              {tariff.remainingPayment.toFixed(2)}
-            </p>
-          </>
-        )}
-      </div>
-
-      {paymentStep === 1 && (
-        <form onSubmit={handlePaymentStep1}>
-          <button type="submit" disabled={loading}>
-            {loading
-              ? "Processando..."
-              : `Pagar 1/3 - R$ ${tariff?.initialPayment.toFixed(2)}`}
-          </button>
-        </form>
-      )}
-
-      {paymentStep === 2 && (
-        <div>
-          <p style={{ color: "green", marginBottom: "20px" }}>
-            ✓ Pagamento 1/3 confirmado!
+        {/* Info da carona */}
+        <div className="card" style={{ marginBottom: "1rem" }}>
+          <p style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--text-secondary)", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            Trajeto
           </p>
-          <p style={{ marginBottom: "20px" }}>
-            Você pagará R$ {tariff?.remainingPayment.toFixed(2)} no dia da
-            carona após confirmar presença com o PIN.
+          <p style={{ fontWeight: "600", fontSize: "1rem", marginBottom: "1rem" }}>
+            {ride.origem?.split(",")[0]} → {ride.destino?.split(",")[0]}
           </p>
-          <form onSubmit={handlePaymentStep2}>
-            <button type="submit" disabled={loading}>
-              {loading ? "Processando..." : "Continuar"}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", fontSize: "0.875rem" }}>
+            <div>
+              <p style={{ color: "var(--text-secondary)", marginBottom: "0.25rem" }}>Data/Hora</p>
+              <p style={{ fontWeight: "500" }}>
+                {dataHora.toLocaleDateString("pt-BR")} às {dataHora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+              </p>
+            </div>
+            <div>
+              <p style={{ color: "var(--text-secondary)", marginBottom: "0.25rem" }}>Carro</p>
+              <p style={{ fontWeight: "500" }}>{ride.carro?.modelo}</p>
+            </div>
+            <div>
+              <p style={{ color: "var(--text-secondary)", marginBottom: "0.25rem" }}>Distância</p>
+              <p style={{ fontWeight: "500" }}>{ride.km_estimado} km</p>
+            </div>
+            <div>
+              <p style={{ color: "var(--text-secondary)", marginBottom: "0.25rem" }}>Combustível</p>
+              <p style={{ fontWeight: "500" }}>
+                {ride.combustivel?.charAt(0).toUpperCase() + ride.combustivel?.slice(1)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Valores */}
+        <div className="card" style={{
+          background: "var(--tertiary-bg)",
+          borderLeft: "3px solid var(--accent)",
+          marginBottom: "1.5rem"
+        }}>
+          <p style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--text-secondary)", marginBottom: "1rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            Valores
+          </p>
+          {tariff && (
+            <div style={{ display: "grid", gap: "0.75rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.875rem" }}>
+                <span style={{ color: "var(--text-secondary)" }}>Valor Total</span>
+                <span style={{ fontWeight: "700", color: "var(--text-primary)" }}>R$ {tariff.totalValue.toFixed(2)}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.875rem" }}>
+                <span style={{ color: "var(--text-secondary)" }}>Você paga agora (1/3)</span>
+                <span style={{ fontWeight: "700", color: "var(--success)" }}>R$ {tariff.initialPayment.toFixed(2)}</span>
+              </div>
+              <div style={{
+                display: "flex", justifyContent: "space-between", fontSize: "0.875rem",
+                paddingTop: "0.75rem", borderTop: "1px solid var(--border)"
+              }}>
+                <span style={{ color: "var(--text-secondary)" }}>Você paga depois (2/3)</span>
+                <span style={{ fontWeight: "700", color: "var(--warning)" }}>R$ {tariff.remainingPayment.toFixed(2)}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {confirmado ? (
+          <div className="card" style={{
+            borderLeft: "3px solid var(--success)",
+            background: "var(--tertiary-bg)",
+            marginBottom: "1rem"
+          }}>
+            <p style={{ fontWeight: "600", color: "var(--success)", marginBottom: "0.5rem" }}>
+              Reserva confirmada!
+            </p>
+            <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
+              Seu PIN será liberado quando o motorista iniciar a carona. Acompanhe em "Minhas Reservas".
+            </p>
+            <button onClick={() => navigate("/passageiro/minhas-reservas")} style={{ width: "100%" }}>
+              Ver Minhas Reservas
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleReservar}>
+            <button type="submit" disabled={submitting} style={{ width: "100%", marginBottom: "0.75rem" }}>
+              {submitting ? "Processando..." : `Pagar R$ ${tariff?.initialPayment.toFixed(2)} e Reservar`}
             </button>
           </form>
-        </div>
-      )}
+        )}
 
-      <button
-        onClick={() => navigate("/passageiro/caronas")}
-        style={{ background: "#6c757d", marginTop: "10px" }}
-      >
-        Cancelar
-      </button>
-    </div>
+        {!confirmado && (
+          <button
+            onClick={() => navigate("/passageiro/caronas")}
+            style={{
+              width: "100%",
+              background: "var(--secondary-bg)",
+              color: "var(--text-primary)",
+              border: "1px solid var(--border)",
+              boxShadow: "none"
+            }}
+          >
+            Cancelar
+          </button>
+        )}
+      </div>
+    </>
   );
 }
 
