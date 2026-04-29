@@ -70,6 +70,23 @@ export const generatePIN = () => {
   return Math.floor(1000 + Math.random() * 9000).toString();
 };
 
+export const saveGeneratedPIN = async (reservationId, pin) => {
+  // PIN salvo mas bloqueado — passageiro precisa pagar 2/3 para ver
+  await updateDoc(doc(db, "reservations", reservationId), {
+    pin,
+    pin_bloqueado: true,
+    updatedAt: Timestamp.now(),
+  });
+};
+
+export const confirmarPagamentoFinal = async (reservationId) => {
+  await updateDoc(doc(db, "reservations", reservationId), {
+    pin_bloqueado: false,
+    data_pagamento_final: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+  });
+};
+
 export const unblockPIN = async (reservationId, pin) => {
   await updateDoc(doc(db, "reservations", reservationId), {
     pin: pin,
