@@ -33,10 +33,9 @@ export const getMotoristaRides = async (motoristId) => {
   const q = query(
     collection(db, "rides"),
     where("motorista_id", "==", motoristId),
-    orderBy("data_hora", "desc"),
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  return snapshot.docs.sort((a, b) => b.data().data_hora.localeCompare(a.data().data_hora)).map((doc) => ({ id: doc.id, ...doc.data() }));
 };
 
 export const getOpenRides = async () => {

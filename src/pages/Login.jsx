@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { signUp, signIn } from "../services/authService";
 import { useAuth } from "../hooks/useAuth";
 
 function Login() {
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { currentUser, userData } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nome, setNome] = useState("");
@@ -14,9 +14,11 @@ function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  if (currentUser) {
-    navigate(tipo === "motorista" ? "/motorista" : "/passageiro");
-  }
+  useEffect(() => {
+    if (currentUser && userData) {
+      navigate(userData.tipo === "motorista" ? "/motorista" : "/passageiro");
+    }
+  }, [currentUser, userData, navigate]);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
