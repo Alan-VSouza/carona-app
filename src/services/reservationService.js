@@ -9,6 +9,7 @@ import {
   where,
   getDocs,
   Timestamp,
+  increment,
 } from "firebase/firestore";
 
 export const createReservation = async (passageiroId, rideId, tariffData) => {
@@ -27,6 +28,18 @@ export const createReservation = async (passageiroId, rideId, tariffData) => {
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
   });
+
+  const rideSnap = await getDoc(doc(db, "rides", rideId));
+  const ride = rideSnap.data();
+  const novosOcupados = (ride.lugares_ocupados ?? 0) + 1;
+  const lotada = novosOcupados >= ride.lugares_disponiveis;
+
+  await updateDoc(doc(db, "rides", rideId), {
+    lugares_ocupados: increment(1),
+    ...(lotada && { status: "lotada" }),
+    updatedAt: Timestamp.now(),
+  });
+
   return docRef.id;
 };
 
