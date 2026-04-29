@@ -35,7 +35,13 @@ export const getMotoristaRides = async (motoristId) => {
     where("motorista_id", "==", motoristId),
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.sort((a, b) => b.data().data_hora.localeCompare(a.data().data_hora)).map((doc) => ({ id: doc.id, ...doc.data() }));
+  return snapshot.docs
+    .sort((a, b) => {
+      const aTime = a.data().data_hora?.toDate?.() ?? new Date(0);
+      const bTime = b.data().data_hora?.toDate?.() ?? new Date(0);
+      return bTime - aTime;
+    })
+    .map((doc) => ({ id: doc.id, ...doc.data() }));
 };
 
 export const getOpenRides = async () => {
@@ -45,7 +51,9 @@ export const getOpenRides = async () => {
     orderBy("data_hora", "asc"),
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  return snapshot.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }))
+    .filter((ride) => (ride.lugares_ocupados ?? 0) < ride.lugares_disponiveis);
 };
 
 export const updateRideStatus = async (rideId, status) => {
